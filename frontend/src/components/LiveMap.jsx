@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { loadMapMyIndiaSdk } from '../mapmyindia';
 
 export default function LiveMap({ title, markers = [], height = 360 }) {
   const mapRef = useRef(null);
   const containerRef = useRef(null);
   const markerRefs = useRef([]);
+  const rawId = useId();
+  const mapId = `mapmyindia-${rawId.replace(/[:]/g, '')}`;
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -17,7 +19,8 @@ export default function LiveMap({ title, markers = [], height = 360 }) {
         if (cancelled || !containerRef.current) return;
 
         if (!mapRef.current) {
-          mapRef.current = new mappls.Map(containerRef.current, {
+          // MapMyIndia expects a valid container id string.
+          mapRef.current = new mappls.Map(mapId, {
             center: [28.6139, 77.2090],
             zoom: 11,
           });
@@ -41,12 +44,16 @@ export default function LiveMap({ title, markers = [], height = 360 }) {
       }
     }
 
-    init();
+    // Delay one frame to ensure container is fully in DOM before SDK init.
+    const rafId = window.requestAnimationFrame(() => {
+      init();
+    });
 
     return () => {
       cancelled = true;
+      window.cancelAnimationFrame(rafId);
     };
-  }, [markers]);
+  }, [markers, mapId]);
 
   return (
     <div className="card">
@@ -56,7 +63,11 @@ export default function LiveMap({ title, markers = [], height = 360 }) {
       {error ? (
         <div className="alert alert-danger">{error}</div>
       ) : (
-        <div ref={containerRef} style={{ width: '100%', height, borderRadius: 10, overflow: 'hidden' }} />
+        <div
+          id={mapId}
+          ref={containerRef}
+          style={{ width: '100%', height, borderRadius: 10, overflow: 'hidden' }}
+        />
       )}
     </div>
   );
