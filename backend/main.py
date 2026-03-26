@@ -11,6 +11,11 @@ def _parse_cors_origins() -> list[str]:
     raw = os.getenv("CORS_ORIGINS", "*")
     return [origin.strip() for origin in raw.split(",") if origin.strip()]
 
+
+def _parse_cors_origin_regex() -> str | None:
+    raw = os.getenv("CORS_ORIGIN_REGEX", "").strip()
+    return raw or None
+
 @asynccontextmanager
 async def lifespan(app):
     await init_client()
@@ -20,11 +25,13 @@ async def lifespan(app):
 app = FastAPI(title="CareSync Hospital API", version="2.0.0", lifespan=lifespan)
 
 cors_origins = _parse_cors_origins()
+cors_origin_regex = _parse_cors_origin_regex()
 allow_credentials = cors_origins != ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
