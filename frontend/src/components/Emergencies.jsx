@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getEmergencies, getEmergencyStats, createEmergency, approveEmergency, declineEmergency, resolveEmergency, reopenEmergency } from '../api';
 import { toast } from '../toast';
+import LiveMap from './LiveMap';
 
 export default function Emergencies() {
   const [emgs, setEmgs] = useState([]);
@@ -56,6 +57,17 @@ export default function Emergencies() {
           ))}
         </div>
         <button className="btn btn-danger" onClick={() => setShowCreate(true)}>🚨 Create Emergency</button>
+      </div>
+
+      <div className="mb-16">
+        <LiveMap
+          title="Emergency Incident Map"
+          markers={emgs.map((e) => ({
+            latitude: Number(e.latitude),
+            longitude: Number(e.longitude),
+            title: `${e.id} • ${e.type}`,
+          }))}
+        />
       </div>
 
       {loading ? <div className="loading">Loading…</div> :

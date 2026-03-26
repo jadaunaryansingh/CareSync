@@ -10,6 +10,7 @@
    - `SUPABASE_URL` = your Supabase project URL
    - `SUPABASE_KEY` = your Supabase anon key
    - `SUPABASE_SECRET` = your Supabase service role key
+   - `MAPMYINDIA_API_KEY` = your MapMyIndia REST API key
    - `CORS_ORIGINS` = comma-separated allowed frontend origins (for example: `https://your-frontend.vercel.app`)
 
 Backend start command is already configured:
@@ -28,6 +29,7 @@ After deploy, note backend URL, for example:
 4. Framework preset: **Vite** (auto-detected).
 5. Add environment variable:
    - `VITE_API_URL` = your Render backend URL (for example `https://caresync-backend.onrender.com`)
+   - `VITE_MAPMYINDIA_API_KEY` = your MapMyIndia JavaScript map key
 6. Deploy.
 
 `frontend/vercel.json` is included to rewrite routes to `index.html` for React Router.
@@ -44,6 +46,15 @@ After deploy, note backend URL, for example:
 2. Try login/signup flow.
 3. Verify API docs open at `<backend-url>/docs`.
 4. Check browser network calls use `VITE_API_URL` and return 2xx.
+
+## 5) Required Database Migration
+
+Run SQL in `backend/tenant_migration.sql` once in Supabase SQL editor.
+
+This migration adds:
+
+- Hospital-level ownership columns (`hospital_email`, `hospital_name`) so each hospital sees only its own data.
+- Coordinate columns (`latitude`, `longitude`) for ambulance and emergency map markers.
 
 ## Notes
 

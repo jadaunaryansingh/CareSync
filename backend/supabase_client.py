@@ -65,10 +65,20 @@ async def sb_delete(table: str, match: dict):
     r.raise_for_status()
     return r.json()
 
-async def log_activity(msg: str, color: str = "blue"):
+async def log_activity(
+    msg: str,
+    color: str = "blue",
+    hospital_email: str | None = None,
+    hospital_name: str | None = None,
+):
     """Fire-and-forget activity log entry."""
     try:
-        await sb_post("activity_log", {"msg": msg, "color": color})
+        payload = {"msg": msg, "color": color}
+        if hospital_email:
+            payload["hospital_email"] = hospital_email
+        if hospital_name:
+            payload["hospital_name"] = hospital_name
+        await sb_post("activity_log", payload)
     except Exception:
         pass
 

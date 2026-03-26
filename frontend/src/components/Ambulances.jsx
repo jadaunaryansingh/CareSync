@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAmbulances, getAmbulanceStats, addAmbulance, dispatchAmbulance, recallAmbulance, clearAmbulance, refuelAmbulance, deleteAmbulance } from '../api';
 import { toast } from '../toast';
+import LiveMap from './LiveMap';
 
 export default function Ambulances() {
   const [ambs, setAmbs] = useState([]);
@@ -61,6 +62,17 @@ export default function Ambulances() {
           <option value="maintenance">Maintenance</option>
         </select>
         <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add Ambulance</button>
+      </div>
+
+      <div className="mb-16">
+        <LiveMap
+          title="Ambulance Live Locations"
+          markers={ambs.map((a) => ({
+            latitude: Number(a.latitude),
+            longitude: Number(a.longitude),
+            title: `${a.id} • ${a.status}`,
+          }))}
+        />
       </div>
 
       {loading ? <div className="loading">Loading…</div> :

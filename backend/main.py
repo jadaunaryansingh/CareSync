@@ -1,9 +1,10 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import beds, blood, oxygen, ambulances, staff, emergencies, auth
 from supabase_client import sb_get, init_client, close_client
+from request_context import RequestContext, get_request_context, with_tenant_params
 
 
 def _parse_cors_origins() -> list[str]:
@@ -42,14 +43,17 @@ def root():
     return {"message": "CareSync Hospital API v2.0 — Supabase Connected", "docs": "/docs"}
 
 @app.get("/api/dashboard")
-async def dashboard():
-    beds_data       = await sb_get("beds",        {"select": "status"})
-    staff_data      = await sb_get("staff",       {"select": "status"})
-    emergencies_data= await sb_get("emergencies", {"select": "status"})
-    ambulances_data = await sb_get("ambulances",  {"select": "status"})
-    blood_data      = await sb_get("blood_bank",  {"select": "blood_type,units,capacity"})
-    oxygen_data     = await sb_get("oxygen_units",{"select": "id,pct"})
-    activity        = await sb_get("activity_log",{"select": "*", "order": "created_at.desc", "limit": "10"})
+async def dashboard(ctx: RequestContext = Depends(get_request_context)):
+    beds_data = await sb_get("beds", with_tenant_params({"select": "status"}, ctx))
+    staff_data = await sb_get("staff", with_tenant_params({"select": "status"}, ctx))
+    emergencies_data = await sb_get("emergencies", with_tenant_params({"select": "status"}, ctx))
+    ambulances_data = await sb_get("ambulances", with_tenant_params({"select": "status"}, ctx))
+    blood_data = await sb_get("blood_bank", with_tenant_params({"select": "blood_type,units,capacity"}, ctx))
+    oxygen_data = await sb_get("oxygen_units", with_tenant_params({"select": "id,pct"}, ctx))
+    activity = await sb_get(
+        "activity_log",
+        with_tenant_params({"select": "*", "order": "created_at.desc", "limit": "10"}, ctx),
+    )
 
     critical_blood  = [d["blood_type"] for d in blood_data if d["units"] / max(d["capacity"], 1) < 0.3]
     critical_oxygen = [o["id"] for o in oxygen_data if o["pct"] < 30]
@@ -68,5 +72,8 @@ async def dashboard():
     }
 
 @app.get("/api/activity")
-async def get_activity(limit: int = 20):
-    return await sb_get("activity_log", {"select": "*", "order": "created_at.desc", "limit": str(limit)})
+async def get_activity(limit: int = 20, ctx: RequestContext = Depends(get_request_context)):
+    return await sb_get(
+        "activity_log",
+        with_tenant_params({"select": "*", "order": "created_at.desc", "limit": str(limit)}, ctx),
+    )
