@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { getEmergencies, getEmergencyStats, createEmergency, approveEmergency, declineEmergency, resolveEmergency, reopenEmergency } from '../api';
+import { getEmergencies, getEmergencyStats, getEmergencyMap, createEmergency, approveEmergency, declineEmergency, resolveEmergency, reopenEmergency } from '../api';
 import { toast } from '../toast';
 import LiveMap from './LiveMap';
 
 export default function Emergencies() {
   const [emgs, setEmgs] = useState([]);
   const [stats, setStats] = useState({});
+  const [mapMarkers, setMapMarkers] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -18,6 +19,12 @@ export default function Emergencies() {
         getEmergencyStats()
       ]);
       setEmgs(e.data); setStats(s.data);
+
+      const mapRes = await getEmergencyMap();
+      const nextMarkers = [];
+      if (mapRes.data?.hospital) nextMarkers.push(mapRes.data.hospital);
+      if (Array.isArray(mapRes.data?.emergencies)) nextMarkers.push(...mapRes.data.emergencies);
+      setMapMarkers(nextMarkers);
     } catch { toast('Failed to load emergencies', 'error'); }
     finally { setLoading(false); }
   };
@@ -62,10 +69,10 @@ export default function Emergencies() {
       <div className="mb-16">
         <LiveMap
           title="Emergency Incident Map"
-          markers={emgs.map((e) => ({
-            latitude: Number(e.latitude),
-            longitude: Number(e.longitude),
-            title: `${e.id} • ${e.type}`,
+          markers={mapMarkers.map((m) => ({
+            latitude: Number(m.latitude),
+            longitude: Number(m.longitude),
+            title: m.title,
           }))}
         />
       </div>

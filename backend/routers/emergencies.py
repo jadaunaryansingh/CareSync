@@ -40,6 +40,67 @@ async def emergency_stats(ctx: RequestContext = Depends(get_request_context)):
     }
 
 
+@router.get("/map")
+async def emergency_map(ctx: RequestContext = Depends(get_request_context)):
+    emgs = await sb_get(
+        "emergencies",
+        with_tenant_params(
+            {
+                "select": "id,type,priority,status,location,latitude,longitude,created_at",
+                "order": "created_at.desc",
+            },
+            ctx,
+        ),
+    )
+
+    emergency_markers = []
+    for e in emgs:
+        lat = e.get("latitude")
+        lng = e.get("longitude")
+
+        if not isinstance(lat, (int, float)) or not isinstance(lng, (int, float)):
+            g_lat, g_lng = await geocode_address(e.get("location") or "")
+            if isinstance(g_lat, (int, float)) and isinstance(g_lng, (int, float)):
+                lat, lng = g_lat, g_lng
+                await sb_patch(
+                    "emergencies",
+                    with_tenant_match({"id": e["id"]}, ctx),
+                    {"latitude": lat, "longitude": lng},
+                )
+
+        if isinstance(lat, (int, float)) and isinstance(lng, (int, float)):
+            emergency_markers.append(
+                {
+                    "id": e["id"],
+                    "title": f"{e['id']} • {e['type']}",
+                    "latitude": float(lat),
+                    "longitude": float(lng),
+                    "priority": e.get("priority"),
+                    "status": e.get("status"),
+                    "kind": "emergency",
+                }
+            )
+
+    hospital_marker = None
+    if not ctx.is_admin:
+        regs = await sb_get(
+            "hospital_registrations",
+            {"select": "hospital_name,address", "email": f"eq.{ctx.email}", "limit": "1"},
+        )
+        if regs:
+            reg = regs[0]
+            h_lat, h_lng = await geocode_address(reg.get("address") or reg.get("hospital_name") or "")
+            if isinstance(h_lat, (int, float)) and isinstance(h_lng, (int, float)):
+                hospital_marker = {
+                    "title": f"Hospital • {reg.get('hospital_name') or ctx.hospital_name}",
+                    "latitude": float(h_lat),
+                    "longitude": float(h_lng),
+                    "kind": "hospital",
+                }
+
+    return {"hospital": hospital_marker, "emergencies": emergency_markers}
+
+
 @router.post("/")
 async def create_emergency(body: EmergencyCreate, ctx: RequestContext = Depends(get_request_context)):
     existing = await sb_get(

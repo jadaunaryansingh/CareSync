@@ -79,6 +79,7 @@ export const deleteStaff = (id) => api.delete(`/api/staff/${id}`);
 // Emergencies
 export const getEmergencies = (status) => api.get('/api/emergencies', { params: { status } });
 export const getEmergencyStats = () => api.get('/api/emergencies/stats');
+export const getEmergencyMap = () => api.get('/api/emergencies/map');
 export const createEmergency = (data) => api.post('/api/emergencies', data);
 export const approveEmergency = (id) => api.patch(`/api/emergencies/${id}/approve`);
 export const declineEmergency = (id) => api.patch(`/api/emergencies/${id}/decline`);
