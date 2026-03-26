@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CareSync — Hospital Management Portal</title>
+<meta name="description" content="Comprehensive hospital management system with bed, blood, oxygen, ambulance, staff, map and emergency management.">
+<link rel="stylesheet" href="hospital-portal.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-logo"><span class="pulse"></span>🏥 CareSync</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-section="dashboard"><span class="icon">📊</span>Dashboard</button>
+    <button class="nav-tab" data-section="beds"><span class="icon">🛏️</span>Bed Management</button>
+    <button class="nav-tab" data-section="blood"><span class="icon">🩸</span>Blood Bank</button>
+    <button class="nav-tab" data-section="oxygen"><span class="icon">💨</span>Oxygen</button>
+    <button class="nav-tab" data-section="ambulance"><span class="icon">🚑</span>Ambulance</button>
+    <button class="nav-tab" data-section="staff"><span class="icon">👨‍⚕️</span>Staff</button>
+    <button class="nav-tab" data-section="map"><span class="icon">🗺️</span>City Map</button>
+    <button class="nav-tab" data-section="emergency"><span class="icon">🚨</span>Emergency <span class="nav-badge" id="navEmergBadge">3</span></button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-time" id="navClock">--:--:--</div>
+    <button class="nav-btn" onclick="openModal('emergModal')">+ New Emergency</button>
+  </div>
+</nav>
+
+<!-- TOASTER -->
+<div class="toaster" id="toaster"></div>
+
+<!-- ========== DASHBOARD ========== -->
+<section class="section active" id="dashboard">
+  <div class="main">
+    <div class="dashboard-hero">
+      <div class="hero-title">CareSync Hospital</div>
+      <div class="hero-sub">Centralized Management Dashboard · Live Overview</div>
+      <div class="vital-strip">
+        <div class="vital"><div class="vital-val" style="color:var(--danger)">🔴 3</div><div class="vital-lbl">Critical Emergencies</div></div>
+        <div class="vital"><div class="vital-val" style="color:var(--accent3)">✅ ONLINE</div><div class="vital-lbl">System Status</div></div>
+        <div class="vital"><div class="vital-val" style="color:var(--accent)">AIIMS, Delhi</div><div class="vital-lbl">Facility</div></div>
+        <div class="vital"><div class="vital-val" style="color:var(--warn)" id="dashDate">--</div><div class="vital-lbl">Today</div></div>
+      </div>
+    </div>
+    <div class="grid4 mb-16">
+      <div class="stat-card blue"><div class="stat-icon">🛏️</div><div class="stat-val" id="dashBeds">--</div><div class="stat-label">Beds Occupied</div><div class="stat-change up">↑ 4 since morning</div></div>
+      <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-val" id="dashAvail">--</div><div class="stat-label">Beds Available</div><div class="stat-change down">↓ 2 since morning</div></div>
+      <div class="stat-card red"><div class="stat-icon">🚨</div><div class="stat-val" id="dashEmerg">--</div><div class="stat-label">Pending Emergencies</div><div class="stat-change up">↑ 1 new</div></div>
+      <div class="stat-card purple"><div class="stat-icon">👨‍⚕️</div><div class="stat-val" id="dashStaff">--</div><div class="stat-label">Staff On Duty</div><div class="stat-change up">↑ Normal shift</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">📈 Admissions (7 Days)</span><span class="badge badge-green">Live</span></div>
+        <div class="mini-chart" id="miniChart1"></div>
+        <div class="flex-between mt-8 text-xs text-muted"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🩺 Discharges (7 Days)</span><span class="badge badge-blue">Live</span></div>
+        <div class="mini-chart" id="miniChart2"></div>
+        <div class="flex-between mt-8 text-xs text-muted"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      </div>
+    </div>
+    <div class="grid2 mt-16">
+      <div class="card"><div class="card-header"><span class="card-title">🔔 Live Activity Feed</span><span class="badge badge-yellow blink">LIVE</span></div><div id="activityFeed"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">⚡ Quick Stats</span></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="flex-between"><span class="text-sm text-muted">🩸 Blood Bank</span><span class="badge badge-green">7 of 8 types OK</span></div>
+          <div class="flex-between"><span class="text-sm text-muted">💨 Oxygen Levels</span><span class="badge badge-yellow">1 Critical Tank</span></div>
+          <div class="flex-between"><span class="text-sm text-muted">🚑 Ambulances Active</span><span class="badge badge-red">2 on mission</span></div>
+          <div class="flex-between"><span class="text-sm text-muted">🏥 ICU Occupancy</span><span class="badge badge-yellow">83%</span></div>
+          <div class="flex-between"><span class="text-sm text-muted">💊 Pharmacy Status</span><span class="badge badge-green">Operational</span></div>
+          <div class="flex-between"><span class="text-sm text-muted">🔌 Power Backup</span><span class="badge badge-green">Online</span></div>
+          <div class="flex-between"><span class="text-sm text-muted">📡 Network Status</span><span class="badge badge-green">All Systems Up</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== BEDS ========== -->
+<section class="section" id="beds">
+  <div class="main">
+    <div class="section-title">🛏️ Bed Management</div>
+    <div class="section-sub">Real-time bed availability across all wards</div>
+    <div class="grid4 mb-16">
+      <div class="stat-card red"><div class="stat-val" id="bedOcc">--</div><div class="stat-label">Occupied</div></div>
+      <div class="stat-card green"><div class="stat-val" id="bedAvail">--</div><div class="stat-label">Available</div></div>
+      <div class="stat-card yellow"><div class="stat-val" id="bedTotal">--</div><div class="stat-label">Total Beds</div></div>
+      <div class="stat-card blue"><div class="stat-val" id="bedMaint">--</div><div class="stat-label">Maintenance</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title mb-8">Ward Filter</div>
+          <div class="ward-selector">
+            <button class="ward-btn active" data-ward="All">All Wards</button>
+            <button class="ward-btn" data-ward="ICU">ICU</button>
+            <button class="ward-btn" data-ward="General">General</button>
+            <button class="ward-btn" data-ward="Emergency">Emergency</button>
+            <button class="ward-btn" data-ward="Pediatric">Pediatric</button>
+            <button class="ward-btn" data-ward="Maternity">Maternity</button>
+            <button class="ward-btn" data-ward="Ortho">Ortho</button>
+            <button class="ward-btn" data-ward="Cardiac">Cardiac</button>
+          </div>
+        </div>
+        <div class="flex-gap">
+          <select class="form-control" id="bedStatusFilter" style="width:140px">
+            <option value="all">All Status</option>
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+            <option value="reserved">Reserved</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:12px;height:12px;background:rgba(16,185,129,0.3);border:1px solid rgba(16,185,129,0.6);border-radius:3px"></span>Available</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:12px;height:12px;background:rgba(239,68,68,0.3);border:1px solid rgba(239,68,68,0.6);border-radius:3px"></span>Occupied</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:12px;height:12px;background:rgba(245,158,11,0.3);border:1px solid rgba(245,158,11,0.6);border-radius:3px"></span>Reserved</span>
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:12px;height:12px;background:rgba(100,116,139,0.3);border:1px solid rgba(100,116,139,0.4);border-radius:3px"></span>Maintenance</span>
+      </div>
+      <div class="bed-grid" id="bedGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== BLOOD ========== -->
+<section class="section" id="blood">
+  <div class="main">
+    <div class="section-title">🩸 Blood Bank Management</div>
+    <div class="section-sub">Inventory, requests and transfusion management</div>
+    <div id="bloodAlerts"></div>
+    <div class="flex-between mb-16">
+      <div class="tabs">
+        <button class="tab-btn active">Inventory</button>
+        <button class="tab-btn">Requests</button>
+        <button class="tab-btn">Donors</button>
+      </div>
+      <button class="btn btn-primary" onclick="openModal('bloodModal')">+ Update Stock</button>
+    </div>
+    <div class="blood-grid" id="bloodGrid"></div>
+    <div class="grid2 mt-16">
+      <div class="card">
+        <div class="card-header"><span class="card-title">📋 Recent Requests</span><button class="btn btn-sm btn-ghost">View All</button></div>
+        <div class="scroll-list">
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700">A+</span><div style="flex:1"><div class="fw-600">Surgery - Bed ICU-04</div><div class="text-xs text-muted">2 units · Dr. Mehta · 16:10</div></div><span class="badge badge-green">Fulfilled</span></div>
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700">O-</span><div style="flex:1"><div class="fw-600">Emergency - Bed ER-02</div><div class="text-xs text-muted">4 units · Dr. Nair · 15:42</div></div><span class="badge badge-yellow">Pending</span></div>
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700">B+</span><div style="flex:1"><div class="fw-600">Trauma Ward · Bed G-11</div><div class="text-xs text-muted">1 unit · Dr. Sharma · 15:20</div></div><span class="badge badge-green">Fulfilled</span></div>
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700">AB+</span><div style="flex:1"><div class="fw-600">OT · General Surgery</div><div class="text-xs text-muted">3 units · Dr. Rao · 14:55</div></div><span class="badge badge-green">Fulfilled</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🧑‍🤝‍🧑 Donor Registry</span><button class="btn btn-sm btn-primary">+ Add Donor</button></div>
+        <div class="scroll-list">
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700;width:30px">O+</span><div style="flex:1"><div class="fw-600">Ramesh Verma</div><div class="text-xs text-muted">Last: 2026-01-10 · Eligible: Yes</div></div><button class="btn btn-xs btn-success">Call</button></div>
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700;width:30px">A-</span><div style="flex:1"><div class="fw-600">Sunita Sharma</div><div class="text-xs text-muted">Last: 2025-11-22 · Eligible: Yes</div></div><button class="btn btn-xs btn-success">Call</button></div>
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700;width:30px">B+</span><div style="flex:1"><div class="fw-600">Arjun Singh</div><div class="text-xs text-muted">Last: 2026-02-05 · Eligible: No</div></div><button class="btn btn-xs btn-ghost">Call</button></div>
+          <div class="scroll-item"><span style="color:var(--danger);font-weight:700;width:30px">AB-</span><div style="flex:1"><div class="fw-600">Meena Patel</div><div class="text-xs text-muted">Last: 2025-09-14 · Eligible: Yes</div></div><button class="btn btn-xs btn-success">Call</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== OXYGEN ========== -->
+<section class="section" id="oxygen">
+  <div class="main">
+    <div class="section-title">💨 Oxygen Management</div>
+    <div class="section-sub">Monitor and manage all oxygen supplies across the hospital</div>
+    <div class="alert alert-danger mb-16" id="oxyAlert"><span>⚠️</span><span><strong>ALERT:</strong> Cylinder Bank C (Emergency Ward) at 22% — Immediate refill required!</span></div>
+    <div class="grid4 mb-16">
+      <div class="stat-card green"><div class="stat-val">4</div><div class="stat-label">Units OK (>60%)</div></div>
+      <div class="stat-card yellow"><div class="stat-val">1</div><div class="stat-label">Units Low (30-60%)</div></div>
+      <div class="stat-card red"><div class="stat-val">1</div><div class="stat-label">Units Critical (<30%)</div></div>
+      <div class="stat-card blue"><div class="stat-val">6</div><div class="stat-label">Total Units</div></div>
+    </div>
+    <div class="grid3" id="oxygenGrid"></div>
+  </div>
+</section>
+
+<!-- ========== AMBULANCE ========== -->
+<section class="section" id="ambulance">
+  <div class="main">
+    <div class="section-title">🚑 Ambulance Management</div>
+    <div class="section-sub">Fleet tracking, dispatch and maintenance management</div>
+    <div class="grid4 mb-16">
+      <div class="stat-card blue"><div class="stat-val" id="ambTotal">--</div><div class="stat-label">Total Fleet</div></div>
+      <div class="stat-card red"><div class="stat-val" id="ambActive">--</div><div class="stat-label">On Mission</div></div>
+      <div class="stat-card green"><div class="stat-val" id="ambAvail">--</div><div class="stat-label">Available</div></div>
+      <div class="stat-card yellow"><div class="stat-val" id="ambMaint">--</div><div class="stat-label">In Maintenance</div></div>
+    </div>
+    <div class="flex-between mb-16">
+      <select class="form-control" id="ambFilter" style="width:180px">
+        <option value="all">All Units</option>
+        <option value="active">On Mission</option>
+        <option value="available">Available</option>
+        <option value="maintenance">Maintenance</option>
+      </select>
+      <button class="btn btn-primary" onclick="openModal('ambModal')">+ Add Ambulance</button>
+    </div>
+    <div class="grid3" id="ambulanceGrid"></div>
+  </div>
+</section>
+
+<!-- ========== STAFF ========== -->
+<section class="section" id="staff">
+  <div class="main">
+    <div class="section-title">👨‍⚕️ Doctor & Staff Management</div>
+    <div class="section-sub">Add, manage and remove hospital staff and doctors</div>
+    <div class="grid4 mb-16">
+      <div class="stat-card blue"><div class="stat-val" id="staffTotal">--</div><div class="stat-label">Total Staff</div></div>
+      <div class="stat-card green"><div class="stat-val" id="staffOnDuty">--</div><div class="stat-label">On Duty</div></div>
+      <div class="stat-card purple"><div class="stat-val" id="staffDoctors">--</div><div class="stat-label">Doctors</div></div>
+      <div class="stat-card yellow"><div class="stat-val" id="staffNurses">--</div><div class="stat-label">Nurses</div></div>
+    </div>
+    <div class="flex-between mb-16">
+      <div class="pill-filters">
+        <button class="pill active" data-staff-filter="all">All</button>
+        <button class="pill" data-staff-filter="on-duty">On Duty</button>
+        <button class="pill" data-staff-filter="off-duty">Off Duty</button>
+        <button class="pill" data-staff-filter="on-leave">On Leave</button>
+      </div>
+      <div class="flex-gap">
+        <div class="search-bar"><span class="search-icon">🔍</span><input type="text" id="staffSearch" placeholder="Search staff..."></div>
+        <button class="btn btn-primary" onclick="openModal('staffModal')">+ Add Staff</button>
+      </div>
+    </div>
+    <div class="grid2" id="staffGrid"></div>
+  </div>
+</section>
+
+<!-- ========== MAP ========== -->
+<section class="section" id="map">
+  <div class="main">
+    <div class="section-title">🗺️ City Map & Emergency Network</div>
+    <div class="section-sub">Live map showing hospital locations, ambulance positions and emergency points</div>
+    <div class="grid2 mb-16">
+      <div class="card">
+        <div class="card-header"><span class="card-title">📡 Live Emergency Map</span><span class="badge badge-yellow blink">LIVE</span></div>
+        <div class="map-container">
+          <div class="map-grid"></div>
+          <!-- Hospital Pins -->
+          <div class="map-pin" style="top:35%;left:48%"><div class="pin-dot" style="background:#00d4ff;width:18px;height:18px;border-radius:3px"></div><div class="pin-label">🏥 AIIMS (Main)</div></div>
+          <div class="map-pin" style="top:22%;left:65%"><div class="pin-dot" style="background:#00d4ff"></div><div class="pin-label">🏥 Safdarjung</div></div>
+          <div class="map-pin" style="top:55%;left:30%"><div class="pin-dot" style="background:#00d4ff"></div><div class="pin-label">🏥 DDU Hospital</div></div>
+          <div class="map-pin" style="top:70%;left:60%"><div class="pin-dot" style="background:#00d4ff"></div><div class="pin-label">🏥 Fortis</div></div>
+          <!-- Ambulance Pins -->
+          <div class="map-pin" style="top:40%;left:58%"><div class="pin-dot" style="background:#f59e0b;animation:pulse 1s infinite"></div><div class="pin-label">🚑 AMB-01 · 8min ETA</div></div>
+          <div class="map-pin" style="top:65%;left:42%"><div class="pin-dot" style="background:#f59e0b;animation:pulse 1s infinite;animation-delay:0.5s"></div><div class="pin-label">🚑 AMB-04 · 14min ETA</div></div>
+          <!-- Emergency Pins -->
+          <div class="map-pin" style="top:43%;left:52%"><div class="pin-dot" style="background:#ef4444;width:16px;height:16px;animation:pulseScale 0.8s infinite"></div><div class="pin-label">🚨 EMR-2401 Critical</div></div>
+          <div class="map-pin" style="top:72%;left:50%"><div class="pin-dot" style="background:#ef4444;animation:pulseScale 0.8s infinite;animation-delay:0.3s"></div><div class="pin-label">🚨 EMR-2402 Critical</div></div>
+          <div class="map-pin" style="top:30%;left:35%"><div class="pin-dot" style="background:#f59e0b"></div><div class="pin-label">🟠 EMR-2403 High</div></div>
+          <!-- Police/PCR -->
+          <div class="map-pin" style="top:18%;left:45%"><div class="pin-dot" style="background:#7c3aed"></div><div class="pin-label">🚔 PCR Van</div></div>
+          <div class="map-pin" style="top:80%;left:25%"><div class="pin-dot" style="background:#7c3aed"></div><div class="pin-label">🚔 Highway Patrol</div></div>
+          <div class="map-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#00d4ff;border-radius:2px"></div><span>Hospital</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span>Ambulance</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div><span>Emergency</span></div>
+            <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div><span>Police/PCR</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏥 Nearby Hospitals</span></div>
+        <div class="scroll-list" style="max-height:380px">
+          <div class="scroll-item"><div style="font-size:20px">🏥</div><div style="flex:1"><div class="fw-600">AIIMS New Delhi</div><div class="text-xs text-muted">📍 Ansari Nagar · 0 km (Main)</div><div class="mt-8 flex-gap"><span class="badge badge-green">ICU: 4 Free</span><span class="badge badge-blue">ER: Open</span></div></div></div>
+          <div class="scroll-item"><div style="font-size:20px">🏥</div><div style="flex:1"><div class="fw-600">Safdarjung Hospital</div><div class="text-xs text-muted">📍 Ring Road · 2.4 km</div><div class="mt-8 flex-gap"><span class="badge badge-yellow">ICU: Full</span><span class="badge badge-blue">ER: Open</span></div></div></div>
+          <div class="scroll-item"><div style="font-size:20px">🏥</div><div style="flex:1"><div class="fw-600">DDU Hospital Hari Nagar</div><div class="text-xs text-muted">📍 Hari Nagar · 5.8 km</div><div class="mt-8 flex-gap"><span class="badge badge-green">ICU: 8 Free</span><span class="badge badge-green">ER: Open</span></div></div></div>
+          <div class="scroll-item"><div style="font-size:20px">🏥</div><div style="flex:1"><div class="fw-600">Fortis Healthcare</div><div class="text-xs text-muted">📍 Vasant Kunj · 7.2 km</div><div class="mt-8 flex-gap"><span class="badge badge-red">ICU: 0 Free</span><span class="badge badge-blue">ER: Open</span></div></div></div>
+          <div class="scroll-item"><div style="font-size:20px">🏥</div><div style="flex:1"><div class="fw-600">RML Hospital</div><div class="text-xs text-muted">📍 Baba Kharak Singh Marg · 3.1 km</div><div class="mt-8 flex-gap"><span class="badge badge-green">ICU: 6 Free</span><span class="badge badge-green">ER: Open</span></div></div></div>
+          <div class="scroll-item"><div style="font-size:20px">🏥</div><div style="flex:1"><div class="fw-600">Lok Nayak Hospital</div><div class="text-xs text-muted">📍 Jawaharlal Nehru Marg · 4.3 km</div><div class="mt-8 flex-gap"><span class="badge badge-yellow">ICU: 2 Free</span><span class="badge badge-blue">ER: Open</span></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="card"><div class="card-title mb-12">🚔 PCR Network</div>
+        <div class="scroll-list" style="max-height:200px">
+          <div class="scroll-item"><div>🚔</div><div style="flex:1"><div class="fw-600">PCR-024</div><div class="text-xs text-muted">CP Metro · Standby</div></div><span class="badge badge-green">Active</span></div>
+          <div class="scroll-item"><div>🚔</div><div style="flex:1"><div class="fw-600">PCR-087</div><div class="text-xs text-muted">NH-8 Patrol</div></div><span class="badge badge-red">Engaged</span></div>
+          <div class="scroll-item"><div>🚔</div><div style="flex:1"><div class="fw-600">PCR-112</div><div class="text-xs text-muted">Dwarka Sector 9</div></div><span class="badge badge-green">Active</span></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title mb-12">🔥 Fire Brigade</div>
+        <div class="scroll-list" style="max-height:200px">
+          <div class="scroll-item"><div>🚒</div><div style="flex:1"><div class="fw-600">FB-Station 3</div><div class="text-xs text-muted">Patel Nagar Fire Station</div></div><span class="badge badge-green">Ready</span></div>
+          <div class="scroll-item"><div>🚒</div><div style="flex:1"><div class="fw-600">FB-Station 7</div><div class="text-xs text-muted">Dwarka · 3 engines</div></div><span class="badge badge-yellow">1 Deployed</span></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title mb-12">📞 Emergency Contacts</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+          <div class="flex-between"><span>🚨 Police</span><a style="color:var(--accent);text-decoration:none" href="tel:100"><strong>100</strong></a></div>
+          <div class="flex-between"><span>🚑 Ambulance</span><a style="color:var(--accent);text-decoration:none" href="tel:102"><strong>102</strong></a></div>
+          <div class="flex-between"><span>🔥 Fire</span><a style="color:var(--warn);text-decoration:none" href="tel:101"><strong>101</strong></a></div>
+          <div class="flex-between"><span>🏥 NDMA</span><a style="color:var(--accent);text-decoration:none" href="tel:1078"><strong>1078</strong></a></div>
+          <div class="flex-between"><span>🩺 Medical Help</span><a style="color:var(--accent3);text-decoration:none" href="tel:104"><strong>104</strong></a></div>
+          <div class="flex-between"><span>👶 Child Helpline</span><a style="color:var(--accent2);text-decoration:none" href="tel:1098"><strong>1098</strong></a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== EMERGENCY ========== -->
+<section class="section" id="emergency">
+  <div class="main">
+    <div class="section-title">🚨 Emergency Portal</div>
+    <div class="section-sub">Manage incoming emergency requests — approve, decline or escalate</div>
+    <div class="grid4 mb-16">
+      <div class="stat-card yellow"><div class="stat-val" id="emergPending">--</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card green"><div class="stat-val" id="emergApproved">--</div><div class="stat-label">Approved</div></div>
+      <div class="stat-card red"><div class="stat-val" id="emergDeclined">--</div><div class="stat-label">Declined</div></div>
+      <div class="stat-card blue"><div class="stat-val" id="emergTotal">--</div><div class="stat-label">Total Today</div></div>
+    </div>
+    <div class="flex-between mb-16">
+      <div class="pill-filters">
+        <button class="pill active" data-emerg-filter="all">All</button>
+        <button class="pill" data-emerg-filter="pending">⏳ Pending</button>
+        <button class="pill" data-emerg-filter="approved">✅ Approved</button>
+        <button class="pill" data-emerg-filter="declined">❌ Declined</button>
+      </div>
+      <button class="btn btn-danger" onclick="openModal('emergModal')">🚨 Create Emergency</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px" id="emergencyList"></div>
+  </div>
+</section>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Bed Modal -->
+<div class="modal-overlay" id="bedModal">
+  <div class="modal">
+    <button class="modal-close">✕</button>
+    <div class="modal-title">🛏️ Bed <span id="bedModalId"></span></div>
+    <div id="bedModalContent"></div>
+  </div>
+</div>
+
+<!-- Blood Modal -->
+<div class="modal-overlay" id="bloodModal">
+  <div class="modal">
+    <button class="modal-close">✕</button>
+    <div class="modal-title">🩸 Update Blood Stock</div>
+    <div class="form-group"><label class="form-label">Blood Type</label>
+      <select class="form-control" id="bloodTypeSelect">
+        <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+        <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Units</label><input class="form-control" type="number" id="bloodUnitsInput" placeholder="Enter units" min="1"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('bloodModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="deductBloodUnits()">− Use Units</button>
+      <button class="btn btn-success" onclick="addBloodUnits()">+ Add Units</button>
+    </div>
+  </div>
+</div>
+
+<!-- Staff Modal -->
+<div class="modal-overlay" id="staffModal">
+  <div class="modal">
+    <button class="modal-close">✕</button>
+    <div class="modal-title">👨‍⚕️ Add Staff Member</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-control" id="staffName" placeholder="Dr. / Mr. / Ms."></div>
+      <div class="form-group"><label class="form-label">Role / Designation *</label><input class="form-control" id="staffRole" placeholder="Cardiologist, Head Nurse..."></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Department *</label>
+        <select class="form-control" id="staffDept">
+          <option>ICU</option><option>Emergency</option><option>Cardiology</option><option>Surgery</option>
+          <option>Neurology</option><option>Pediatrics</option><option>Maternity</option><option>Radiology</option>
+          <option>Pathology</option><option>Orthopedics</option><option>General Ward</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Shift</label>
+        <select class="form-control" id="staffShift"><option>Morning</option><option>Evening</option><option>Night</option><option>Rotational</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Phone Number</label><input class="form-control" id="staffPhone" placeholder="98XXXXXXXX"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('staffModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addStaff()">✅ Add Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ambulance Modal -->
+<div class="modal-overlay" id="ambModal">
+  <div class="modal">
+    <button class="modal-close">✕</button>
+    <div class="modal-title">🚑 Add Ambulance</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Registration No. *</label><input class="form-control" id="ambReg" placeholder="DL-XX-EA-XXXX"></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-control" id="ambType"><option>ALS</option><option>BLS</option><option>NICU</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Driver Name *</label><input class="form-control" id="ambDriver" placeholder="Driver full name"></div>
+      <div class="form-group"><label class="form-label">Contact</label><input class="form-control" id="ambContact" placeholder="98XXXXXXXX"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('ambModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="addAmbulance()">+ Add to Fleet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Emergency Modal -->
+<div class="modal-overlay" id="emergModal">
+  <div class="modal">
+    <button class="modal-close">✕</button>
+    <div class="modal-title">🚨 Create Emergency Request</div>
+    <div class="form-group"><label class="form-label">Emergency Type *</label><input class="form-control" id="emergType" placeholder="Cardiac Arrest, Road Accident..."></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Location *</label><input class="form-control" id="emergLocation" placeholder="Area, Landmark, Address"></div>
+      <div class="form-group"><label class="form-label">Priority *</label>
+        <select class="form-control" id="emergPriority"><option value="critical">🔴 Critical</option><option value="high">🟠 High</option><option value="medium">🟡 Medium</option></select>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Reported By / Caller</label><input class="form-control" id="emergCaller" placeholder="Police, Family, Public..."></div>
+    <div class="form-group"><label class="form-label">Details</label><textarea class="form-control" id="emergDetails" rows="3" placeholder="Describe the situation..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('emergModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="addEmergency()">🚨 Submit Emergency</button>
+    </div>
+  </div>
+</div>
+
+<script src="hospital-portal.js"></script>
+<script>
+  // Set today's date
+  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  // Add ambulance
+  function addAmbulance() {
+    const reg=document.getElementById('ambReg').value.trim();
+    const driver=document.getElementById('ambDriver').value.trim();
+    const contact=document.getElementById('ambContact').value.trim();
+    const type=document.getElementById('ambType').value;
+    if (!reg||!driver) { showToast('Fill required fields','error'); return; }
+    const id='AMB-'+String(DB.ambulances.length+1).padStart(2,'0');
+    DB.ambulances.push({id,reg,driver,contact,status:'available',location:'Hospital Base',eta:'-',patient:'-',lastService:new Date().toISOString().split('T')[0],fuel:100,type});
+    closeModal('ambModal'); renderAmbulances(); showToast(`${id} (${reg}) added to fleet`,'success');
+  }
+</script>
+</body>
+</html>
